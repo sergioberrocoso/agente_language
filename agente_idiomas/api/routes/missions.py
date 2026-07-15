@@ -43,6 +43,7 @@ def create_open_mission(body: CreateOpenMissionRequest):
     mission = agent.create_open_mission(
         description=body.description,
         mission_id=body.mission_id,
+        difficulty=body.difficulty,
     )
     return Mission(**mission)
 

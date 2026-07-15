@@ -81,3 +81,4 @@ class UserDB:
 
     def close(self) -> None:
         self._conn.close()
+

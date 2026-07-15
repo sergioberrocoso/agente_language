@@ -22,6 +22,8 @@ class UserDB:
 
     def _create_schema(self) -> None:
         with self._lock:
+            self._conn.execute("PRAGMA journal_mode=WAL;")
+            self._conn.execute("PRAGMA synchronous=NORMAL;")
             self._conn.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS users (

@@ -19,6 +19,7 @@ class TokenError(ValueError):
 
 _LOG = logging.getLogger(__name__)
 _WARNED_DEFAULT_SECRET = False
+_DEFAULT_JWT_SECRET = base64.urlsafe_b64encode(os.urandom(48)).decode("ascii")
 
 
 def _b64url_encode(raw: bytes) -> str:
@@ -40,7 +41,7 @@ def _jwt_secret() -> str:
             "JWT_SECRET no está configurado; usando secreto por defecto de desarrollo.",
         )
         _WARNED_DEFAULT_SECRET = True
-    return "dev-secret-change-me"
+    return _DEFAULT_JWT_SECRET
 
 
 def _jwt_expire_minutes() -> int:
@@ -53,7 +54,7 @@ def _jwt_expire_minutes() -> int:
 
 def hash_password(password: str) -> str:
     """Hashea contraseña con PBKDF2-HMAC-SHA256 + salt aleatoria."""
-    iterations = 600_000
+    iterations = 1_000_000
     salt = os.urandom(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
     return (

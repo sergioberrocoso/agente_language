@@ -19,7 +19,7 @@ class TokenError(ValueError):
 
 _LOG = logging.getLogger(__name__)
 _WARNED_DEFAULT_SECRET = False
-_DEFAULT_JWT_SECRET = base64.urlsafe_b64encode(os.urandom(48)).decode("ascii")
+_DEFAULT_JWT_SECRET = "agente-language-dev-secret-change-me"
 
 
 def _b64url_encode(raw: bytes) -> str:
@@ -54,7 +54,11 @@ def _jwt_expire_minutes() -> int:
 
 def hash_password(password: str) -> str:
     """Genera hash de contraseña con PBKDF2-HMAC-SHA256 + salt aleatoria."""
-    iterations = 600_000
+    raw_iterations = os.getenv("PASSWORD_HASH_ITERATIONS", "600000")
+    try:
+        iterations = max(200_000, int(raw_iterations))
+    except ValueError:
+        iterations = 600_000
     salt = os.urandom(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
     return (

@@ -14,7 +14,7 @@ class UserDB:
         self._conn = sqlite3.connect(
             db_path,
             check_same_thread=False,
-            isolation_level="IMMEDIATE",
+            isolation_level="DEFERRED",
         )
         self._conn.row_factory = sqlite3.Row
         self._lock = threading.Lock()
@@ -81,4 +81,3 @@ class UserDB:
 
     def close(self) -> None:
         self._conn.close()
-

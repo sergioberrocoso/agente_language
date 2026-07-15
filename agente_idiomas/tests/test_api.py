@@ -238,14 +238,14 @@ class APIAuthTests(unittest.TestCase):
     def test_register_duplicate_returns_409(self):
         self.client.post(
             "/auth/register",
-            json={"email": "Alice@Example.com", "password": "secret-1"},
+            json={"email": "Alice@Example.com", "password": "secret-12345"},
         )
         created = deps.get_user_db().get_by_email("alice@example.com")
         self.assertIsNotNone(created)
         self.assertEqual("alice@example.com", created["email"])
         r = self.client.post(
             "/auth/register",
-            json={"email": "alice@example.com", "password": "secret-2"},
+            json={"email": "alice@example.com", "password": "secret-67890"},
         )
         self.assertEqual(409, r.status_code)
 
@@ -281,11 +281,11 @@ class APIAuthTests(unittest.TestCase):
     def test_me_with_valid_token_returns_user(self):
         self.client.post(
             "/auth/register",
-            json={"email": "dave@example.com", "password": "strong-pass"},
+            json={"email": "dave@example.com", "password": "strong-password"},
         )
         login = self.client.post(
             "/auth/login",
-            json={"email": "dave@example.com", "password": "strong-pass"},
+            json={"email": "dave@example.com", "password": "strong-password"},
         )
         token = login.json()["access_token"]
         r = self.client.get("/auth/me", headers={"Authorization": "Bearer " + token})
@@ -300,7 +300,7 @@ class APIAuthTests(unittest.TestCase):
     def test_me_with_expired_token_returns_401(self):
         self.client.post(
             "/auth/register",
-            json={"email": "eva@example.com", "password": "strong-pass"},
+            json={"email": "eva@example.com", "password": "strong-password"},
         )
         user = deps.get_user_db().get_by_email("eva@example.com")
         expired_token = create_access_token(str(user["id"]), expires_minutes=-1)

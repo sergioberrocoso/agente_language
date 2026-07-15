@@ -49,7 +49,9 @@ def get_vocab_db() -> VocabularyDB:
 def get_user_db() -> UserDB:
     global _user_db
     if _user_db is None:
-        _user_db = UserDB(db_path=os.getenv("USER_DB_PATH", ":memory:"))
+        _user_db = UserDB(
+            db_path=os.getenv("USER_DB_PATH", str(_DATA_DIR / "users.db")),
+        )
     return _user_db
 
 

@@ -11,7 +11,11 @@ class UserDB:
     """Persistencia de usuarios en SQLite."""
 
     def __init__(self, db_path: str = ":memory:"):
-        self._conn = sqlite3.connect(db_path, check_same_thread=False)
+        self._conn = sqlite3.connect(
+            db_path,
+            check_same_thread=False,
+            isolation_level="IMMEDIATE",
+        )
         self._conn.row_factory = sqlite3.Row
         self._lock = threading.Lock()
         self._create_schema()
@@ -75,4 +79,3 @@ class UserDB:
 
     def close(self) -> None:
         self._conn.close()
-

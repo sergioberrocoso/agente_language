@@ -120,12 +120,12 @@ class ChatResponse(BaseModel):
 # ---------------------------------------------------------------------------
 class AuthRegisterRequest(BaseModel):
     email: str = Field(..., min_length=3)
-    password: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=8)
 
 
 class AuthLoginRequest(BaseModel):
     email: str = Field(..., min_length=3)
-    password: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=8)
 
 
 class PublicUser(BaseModel):

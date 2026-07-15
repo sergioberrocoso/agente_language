@@ -7,6 +7,7 @@ import binascii
 import hashlib
 import hmac
 import json
+import logging
 import os
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -14,6 +15,10 @@ from typing import Any
 
 class TokenError(ValueError):
     """Error de token JWT."""
+
+
+_LOG = logging.getLogger(__name__)
+_WARNED_DEFAULT_SECRET = False
 
 
 def _b64url_encode(raw: bytes) -> str:
@@ -26,7 +31,16 @@ def _b64url_decode(encoded: str) -> bytes:
 
 
 def _jwt_secret() -> str:
-    return os.getenv("JWT_SECRET", "dev-secret-change-me")
+    global _WARNED_DEFAULT_SECRET
+    secret = os.getenv("JWT_SECRET")
+    if secret:
+        return secret
+    if not _WARNED_DEFAULT_SECRET:
+        _LOG.warning(
+            "JWT_SECRET no está configurado; usando secreto por defecto de desarrollo.",
+        )
+        _WARNED_DEFAULT_SECRET = True
+    return "dev-secret-change-me"
 
 
 def _jwt_expire_minutes() -> int:

@@ -34,9 +34,11 @@ def export_flashcards(body: FlashcardExportRequest):
         for c in body.flashcards
     ]
 
-    # El nombre de archivo lo genera el servidor (UUID) para que ninguna
+    # El nombre de archivo lo genera el servidor (timestamp + UUID) para que ninguna
     # parte de la ruta proceda de input del cliente → sin path injection.
-    safe_path = _EXPORT_BASE / f"{uuid.uuid4().hex}.tsv"
+    import time as _time
+    prefix = int(_time.time())
+    safe_path = _EXPORT_BASE / f"{prefix}_{uuid.uuid4().hex}.tsv"
 
     try:
         path = export_flashcards_to_tsv(raw_cards, str(safe_path))

@@ -189,13 +189,17 @@ class APIFlashcardsTests(unittest.TestCase):
                     },
                 }
             ],
-            "output_path": "/tmp/test_deck.tsv",
+            # output_path is accepted by the schema but the server ignores it
+            # and generates a safe UUID-based filename internally.
+            "output_path": "ignored_by_server.tsv",
         }
         r = self.client.post("/flashcards/export", json=payload)
         self.assertEqual(200, r.status_code)
         data = r.json()
         self.assertEqual(1, data["count"])
         self.assertIn("exported_to", data)
+        # Verify the server used its own path (not the client-provided name)
+        self.assertNotIn("ignored_by_server", data["exported_to"])
 
 
 if __name__ == "__main__":

@@ -69,7 +69,9 @@ def validate_export_path(user_path: str, base_dir: Path) -> Path:
 	if not name:
 		raise ValueError("El nombre de archivo no puede estar vacío.")
 	resolved = (base / name).resolve()
-	if not str(resolved).startswith(str(base) + "/") and resolved != base:
+	# Comparar con os.sep para compatibilidad con Windows y Unix
+	sep = "/" if "/" in str(base) else "\\"
+	if not str(resolved).startswith(str(base) + sep) and resolved != base:
 		raise ValueError(f"Ruta no permitida fuera del directorio base: {user_path}")
 	return resolved
 

@@ -12,6 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from agent.language_tutor import LanguageTutorAgent
 from auth.security import TokenError, decode_access_token
 from db.user_db import UserDB
+from db.user_progress_db import UserProgressDB
 from db.vocabulary_db import VocabularyDB
 
 _DATA_DIR = Path(__file__).parent.parent / "data"
@@ -23,6 +24,7 @@ _NGSL_CSV = _DATA_DIR / "NGSL_1.2_lemmatized_for_teaching.csv"
 _agent: LanguageTutorAgent | None = None
 _vocab_db: VocabularyDB | None = None
 _user_db: UserDB | None = None
+_user_progress_db: UserProgressDB | None = None
 _bearer = HTTPBearer(auto_error=False)
 _LOG = logging.getLogger(__name__)
 
@@ -55,6 +57,18 @@ def get_user_db() -> UserDB:
             db_path=os.getenv("USER_DB_PATH", str(_DATA_DIR / "users.db")),
         )
     return _user_db
+
+
+def get_user_progress_db() -> UserProgressDB:
+    global _user_progress_db
+    if _user_progress_db is None:
+        _user_progress_db = UserProgressDB(
+            db_path=os.getenv(
+                "USER_PROGRESS_DB_PATH",
+                str(_DATA_DIR / "user_progress.db"),
+            ),
+        )
+    return _user_progress_db
 
 
 def get_current_user(

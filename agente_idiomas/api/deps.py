@@ -66,7 +66,7 @@ def get_current_user(
         detail="Invalid or missing authentication token",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    if credentials is None or credentials.scheme != "Bearer":
+    if credentials is None or credentials.scheme.lower() != "bearer":
         raise unauthorized
 
     try:

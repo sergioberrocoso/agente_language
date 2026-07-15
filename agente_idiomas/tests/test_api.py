@@ -240,6 +240,9 @@ class APIAuthTests(unittest.TestCase):
             "/auth/register",
             json={"email": "Alice@Example.com", "password": "secret-1"},
         )
+        created = deps.get_user_db().get_by_email("alice@example.com")
+        self.assertIsNotNone(created)
+        self.assertEqual("alice@example.com", created["email"])
         r = self.client.post(
             "/auth/register",
             json={"email": "alice@example.com", "password": "secret-2"},

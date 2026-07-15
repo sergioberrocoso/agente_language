@@ -53,7 +53,7 @@ def _jwt_expire_minutes() -> int:
 
 def hash_password(password: str) -> str:
     """Hashea contraseña con PBKDF2-HMAC-SHA256 + salt aleatoria."""
-    iterations = 200_000
+    iterations = 600_000
     salt = os.urandom(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
     return (

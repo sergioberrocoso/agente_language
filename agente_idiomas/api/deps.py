@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import logging
 from pathlib import Path
 
 from fastapi import Depends, HTTPException, status
@@ -23,6 +24,7 @@ _agent: LanguageTutorAgent | None = None
 _vocab_db: VocabularyDB | None = None
 _user_db: UserDB | None = None
 _bearer = HTTPBearer(auto_error=False)
+_LOG = logging.getLogger(__name__)
 
 
 def get_agent() -> LanguageTutorAgent:
@@ -70,15 +72,18 @@ def get_current_user(
     try:
         payload = decode_access_token(credentials.credentials)
     except TokenError as exc:
+        _LOG.debug("Token inválido en autenticación: %s", exc)
         raise unauthorized from exc
 
     try:
         user_id = int(payload.get("sub"))
     except (TypeError, ValueError):
+        _LOG.debug("Token sin claim sub válido: %s", payload.get("sub"))
         raise unauthorized
 
     user = user_db.get_by_id(user_id)
     if user is None:
+        _LOG.debug("Usuario no encontrado para sub=%s", user_id)
         raise unauthorized
 
     return user

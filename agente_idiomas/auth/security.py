@@ -38,7 +38,7 @@ def _jwt_secret() -> str:
         return secret
     if not _WARNED_DEFAULT_SECRET:
         _LOG.warning(
-            "JWT_SECRET no está configurado; usando secreto por defecto de desarrollo.",
+            "JWT_SECRET is not configured; using development default secret.",
         )
         _WARNED_DEFAULT_SECRET = True
     return _DEFAULT_JWT_SECRET

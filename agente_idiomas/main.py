@@ -1,4 +1,5 @@
 from agent.language_tutor import LanguageTutorAgent
+from flashcards.anki_export import export_flashcards_to_tsv
 
 def main():
     # Crear el agente
@@ -40,6 +41,11 @@ def main():
         print("Front:", card["front"])
         print("Back:", card["back"])
         print("---")
+
+    # Exportar mazo en formato TSV listo para importar en Anki.
+    output_path = "flashcards/exports/mission_flashcards.tsv"
+    export_flashcards_to_tsv(flashcards, output_path)
+    print(f"Archivo Anki exportado en: {output_path}")
 
 if __name__ == "__main__":
     main()

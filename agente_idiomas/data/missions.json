@@ -1,0 +1,10 @@
+[
+    {
+        "id": "mission_001",
+        "name": "At the park",
+        "goal": "Learn vocabulary related to animals and actions",
+        "vocabulary_tags": ["animals", "actions"],
+        "dialogues": [],
+        "exercises": []
+    }
+]

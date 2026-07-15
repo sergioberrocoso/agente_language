@@ -1,0 +1,19 @@
+ 
+[
+    {
+        "word": "dog",
+        "tags": ["animals"]
+    },
+    {
+        "word": "cat",
+        "tags": ["animals"]
+    },
+    {
+        "word": "run",
+        "tags": ["actions"]
+    },
+    {
+        "word": "eat",
+        "tags": ["actions"]
+    }
+]

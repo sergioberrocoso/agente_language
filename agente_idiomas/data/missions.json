@@ -4,7 +4,149 @@
         "name": "At the park",
         "goal": "Learn vocabulary related to animals and actions",
         "vocabulary_tags": ["animals", "actions"],
-        "dialogues": [],
-        "exercises": []
+        "dialogues": [
+            {"speaker": "Tutor",   "text": "Do you have any pets?"},
+            {"speaker": "Student", "text": "Yes, I have a dog."},
+            {"speaker": "Tutor",   "text": "What do you usually do with your dog in the park?"},
+            {"speaker": "Student", "text": "I walk and play with him every morning."}
+        ],
+        "exercises": [
+            {
+                "type": "fill_blank",
+                "text":   "I usually ___ my dog in the park.",
+                "blanks": ["walk"],
+                "hint":   "Verb for taking a dog outside"
+            },
+            {
+                "type": "multiple_choice",
+                "text":    "Which of these is an animal?",
+                "options": ["dog", "car", "table", "book"],
+                "answer":  "dog"
+            },
+            {
+                "type": "translate",
+                "text": "My dog is very friendly."
+            }
+        ]
+    },
+    {
+        "id": "mission_002",
+        "name": "At the restaurant",
+        "goal": "Practice ordering food and talking about meals",
+        "vocabulary_tags": ["food", "actions"],
+        "dialogues": [
+            {"speaker": "Tutor",   "text": "What kind of food do you like?"},
+            {"speaker": "Student", "text": "I love Italian food."},
+            {"speaker": "Tutor",   "text": "Do you often go to restaurants?"},
+            {"speaker": "Student", "text": "Yes, I go out for dinner once a week."}
+        ],
+        "exercises": [
+            {
+                "type": "fill_blank",
+                "text":   "I ___ a lot of fruit every day.",
+                "blanks": ["eat"],
+                "hint":   "Verb for consuming food"
+            },
+            {
+                "type": "multiple_choice",
+                "text":    "What do you call the midday meal?",
+                "options": ["breakfast", "lunch", "dinner", "snack"],
+                "answer":  "lunch"
+            },
+            {
+                "type": "translate",
+                "text": "The menu has many options."
+            }
+        ]
+    },
+    {
+        "id": "mission_003",
+        "name": "Planning a trip",
+        "goal": "Learn travel vocabulary and phrases",
+        "vocabulary_tags": ["travel", "actions"],
+        "dialogues": [
+            {"speaker": "Tutor",   "text": "Where would you like to travel next?"},
+            {"speaker": "Student", "text": "I want to visit Japan."},
+            {"speaker": "Tutor",   "text": "Great choice! Have you bought your ticket yet?"},
+            {"speaker": "Student", "text": "Not yet, I'm still planning."}
+        ],
+        "exercises": [
+            {
+                "type": "fill_blank",
+                "text":   "You need a ___ to enter another country.",
+                "blanks": ["passport"],
+                "hint":   "Official travel document"
+            },
+            {
+                "type": "multiple_choice",
+                "text":    "Where do planes take off and land?",
+                "options": ["station", "harbor", "airport", "garage"],
+                "answer":  "airport"
+            },
+            {
+                "type": "translate",
+                "text": "The flight departs at 10 am."
+            }
+        ]
+    },
+    {
+        "id": "mission_004",
+        "name": "Talking about work",
+        "goal": "Practice professional vocabulary and describing your job",
+        "vocabulary_tags": ["work", "actions"],
+        "dialogues": [
+            {"speaker": "Tutor",   "text": "What do you do for work?"},
+            {"speaker": "Student", "text": "I work in a software company."},
+            {"speaker": "Tutor",   "text": "What are your main responsibilities?"},
+            {"speaker": "Student", "text": "I develop mobile applications."}
+        ],
+        "exercises": [
+            {
+                "type": "fill_blank",
+                "text":   "I have an important ___ with my boss tomorrow.",
+                "blanks": ["meeting"],
+                "hint":   "A scheduled professional gathering"
+            },
+            {
+                "type": "multiple_choice",
+                "text":    "What do you call the money you earn from your job?",
+                "options": ["salary", "price", "cost", "budget"],
+                "answer":  "salary"
+            },
+            {
+                "type": "translate",
+                "text": "The project deadline is next Friday."
+            }
+        ]
+    },
+    {
+        "id": "mission_005",
+        "name": "Describing the weather",
+        "goal": "Learn weather vocabulary and how to describe climate",
+        "vocabulary_tags": ["weather", "time"],
+        "dialogues": [
+            {"speaker": "Tutor",   "text": "What is the weather like today?"},
+            {"speaker": "Student", "text": "It is sunny and warm."},
+            {"speaker": "Tutor",   "text": "Do you prefer hot or cold weather?"},
+            {"speaker": "Student", "text": "I prefer warm weather. I don't like the cold."}
+        ],
+        "exercises": [
+            {
+                "type": "fill_blank",
+                "text":   "In winter it is very ___ and sometimes it snows.",
+                "blanks": ["cold"],
+                "hint":   "Opposite of hot"
+            },
+            {
+                "type": "multiple_choice",
+                "text":    "What do you use to measure temperature?",
+                "options": ["thermometer", "clock", "scale", "ruler"],
+                "answer":  "thermometer"
+            },
+            {
+                "type": "translate",
+                "text": "It is raining heavily outside."
+            }
+        ]
     }
 ]

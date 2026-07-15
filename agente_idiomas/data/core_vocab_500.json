@@ -1,19 +1,43 @@
  
 [
-    {
-        "word": "dog",
-        "tags": ["animals"]
-    },
-    {
-        "word": "cat",
-        "tags": ["animals"]
-    },
-    {
-        "word": "run",
-        "tags": ["actions"]
-    },
-    {
-        "word": "eat",
-        "tags": ["actions"]
-    }
+    {"word": "dog",         "tags": ["animals"],   "definition": "A common domesticated carnivore kept as a pet or for work", "example": "I walk my dog every morning.", "translation": "perro"},
+    {"word": "cat",         "tags": ["animals"],   "definition": "A small domesticated carnivorous mammal", "example": "My cat sleeps on the sofa.", "translation": "gato"},
+    {"word": "bird",        "tags": ["animals"],   "definition": "A warm-blooded vertebrate with feathers and wings", "example": "A bird is singing outside.", "translation": "pájaro"},
+    {"word": "fish",        "tags": ["animals", "food"], "definition": "A cold-blooded vertebrate living in water", "example": "I have a fish in my aquarium.", "translation": "pez/pescado"},
+    {"word": "horse",       "tags": ["animals"],   "definition": "A large domesticated mammal used for riding", "example": "She rides her horse every weekend.", "translation": "caballo"},
+    {"word": "rabbit",      "tags": ["animals"],   "definition": "A small mammal with long ears", "example": "We have a rabbit as a pet.", "translation": "conejo"},
+    {"word": "run",         "tags": ["actions"],   "definition": "To move quickly on foot", "example": "She runs 5 km every day.", "translation": "correr"},
+    {"word": "eat",         "tags": ["actions", "food"], "definition": "To put food in the mouth and swallow it", "example": "We eat dinner at 8 pm.", "translation": "comer"},
+    {"word": "walk",        "tags": ["actions"],   "definition": "To move at a regular pace on foot", "example": "I walk to work every morning.", "translation": "caminar"},
+    {"word": "play",        "tags": ["actions"],   "definition": "To engage in activity for enjoyment", "example": "The children play in the park.", "translation": "jugar"},
+    {"word": "sleep",       "tags": ["actions"],   "definition": "To rest in a state of unconsciousness", "example": "I sleep eight hours a night.", "translation": "dormir"},
+    {"word": "drink",       "tags": ["actions", "food"], "definition": "To take liquid into the mouth and swallow", "example": "She drinks coffee every morning.", "translation": "beber"},
+    {"word": "food",        "tags": ["food"],       "definition": "Any nutritious substance that organisms consume", "example": "Healthy food is important for your body.", "translation": "comida"},
+    {"word": "bread",       "tags": ["food"],       "definition": "A staple food made from flour and water", "example": "I buy fresh bread every morning.", "translation": "pan"},
+    {"word": "water",       "tags": ["food", "nature"], "definition": "A transparent liquid essential for life", "example": "Drink at least two litres of water a day.", "translation": "agua"},
+    {"word": "milk",        "tags": ["food"],       "definition": "A white liquid produced by mammals as food for their young", "example": "She drinks a glass of milk before bed.", "translation": "leche"},
+    {"word": "restaurant",  "tags": ["food"],       "definition": "A place where meals are prepared and served", "example": "We had dinner at a nice restaurant.", "translation": "restaurante"},
+    {"word": "meal",        "tags": ["food"],       "definition": "An occasion when food is eaten", "example": "Lunch is my favourite meal of the day.", "translation": "comida/comida del día"},
+    {"word": "airport",     "tags": ["travel"],    "definition": "A place where aircraft take off and land", "example": "We arrived at the airport two hours early.", "translation": "aeropuerto"},
+    {"word": "hotel",       "tags": ["travel"],    "definition": "An establishment providing accommodation", "example": "We stayed at a five-star hotel.", "translation": "hotel"},
+    {"word": "passport",    "tags": ["travel"],    "definition": "An official document used for international travel", "example": "Don't forget your passport!", "translation": "pasaporte"},
+    {"word": "ticket",      "tags": ["travel"],    "definition": "A piece of paper granting access or travel rights", "example": "I bought a round-trip ticket to Paris.", "translation": "billete"},
+    {"word": "travel",      "tags": ["travel"],    "definition": "To make a journey from one place to another", "example": "She loves to travel to new countries.", "translation": "viajar"},
+    {"word": "job",         "tags": ["work"],      "definition": "A paid position of regular employment", "example": "He got a new job at a tech company.", "translation": "trabajo"},
+    {"word": "salary",      "tags": ["work"],      "definition": "A fixed regular payment from an employer", "example": "Her salary increased after the promotion.", "translation": "salario"},
+    {"word": "meeting",     "tags": ["work"],      "definition": "A gathering of people for a purpose", "example": "The meeting starts at 9 am.", "translation": "reunión"},
+    {"word": "weather",     "tags": ["weather"],   "definition": "The state of the atmosphere at a particular time", "example": "The weather is perfect for a picnic.", "translation": "tiempo/clima"},
+    {"word": "rain",        "tags": ["weather"],   "definition": "Water droplets falling from clouds", "example": "It rained all day yesterday.", "translation": "lluvia"},
+    {"word": "cold",        "tags": ["weather"],   "definition": "A low temperature; not warm", "example": "It is very cold in January.", "translation": "frío"},
+    {"word": "hot",         "tags": ["weather"],   "definition": "A high temperature; not cold", "example": "Summer days are hot and sunny.", "translation": "caliente/caluroso"},
+    {"word": "school",      "tags": ["school"],    "definition": "An institution for educating children", "example": "She goes to school every weekday.", "translation": "escuela"},
+    {"word": "student",     "tags": ["school"],    "definition": "A person who is studying at a school or university", "example": "He is a student of medicine.", "translation": "estudiante"},
+    {"word": "book",        "tags": ["school"],    "definition": "A set of printed pages bound together", "example": "I read a book every week.", "translation": "libro"},
+    {"word": "happy",       "tags": ["emotions"],  "definition": "Feeling or showing pleasure and contentment", "example": "She was happy when she heard the news.", "translation": "feliz"},
+    {"word": "sad",         "tags": ["emotions"],  "definition": "Feeling unhappy or sorrow", "example": "He felt sad when his team lost.", "translation": "triste"},
+    {"word": "love",        "tags": ["emotions"],  "definition": "An intense feeling of deep affection", "example": "She loves spending time with her family.", "translation": "amor/amar"},
+    {"word": "day",         "tags": ["time"],      "definition": "A period of 24 hours", "example": "I study for two hours every day.", "translation": "día"},
+    {"word": "morning",     "tags": ["time"],      "definition": "The period from sunrise to noon", "example": "I exercise in the morning.", "translation": "mañana"},
+    {"word": "house",       "tags": ["home"],      "definition": "A building used as a dwelling", "example": "They bought a new house last year.", "translation": "casa"},
+    {"word": "room",        "tags": ["home"],      "definition": "A section of a building enclosed by walls", "example": "My room is on the second floor.", "translation": "habitación"}
 ]

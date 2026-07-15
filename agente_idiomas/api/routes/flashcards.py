@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import tempfile
+import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
@@ -14,8 +15,6 @@ from flashcards.anki_export import export_flashcards_to_tsv
 router = APIRouter(prefix="/flashcards", tags=["flashcards"])
 
 # Directorio seguro donde se escriben los exports.
-# Siempre se usa como base_dir para evitar path-traversal con la ruta
-# proporcionada por el cliente.
 _EXPORT_BASE = Path(tempfile.gettempdir()) / "agente_language_exports"
 _EXPORT_BASE.mkdir(parents=True, exist_ok=True)
 
@@ -35,11 +34,13 @@ def export_flashcards(body: FlashcardExportRequest):
         for c in body.flashcards
     ]
 
-    # Pasar base_dir para que la función restrinja la escritura al directorio
-    # seguro y descarte cualquier componente de directorio del nombre de archivo.
+    # El nombre de archivo lo genera el servidor (UUID) para que ninguna
+    # parte de la ruta proceda de input del cliente → sin path injection.
+    safe_path = _EXPORT_BASE / f"{uuid.uuid4().hex}.tsv"
+
     try:
-        path = export_flashcards_to_tsv(raw_cards, body.output_path, base_dir=_EXPORT_BASE)
-    except (ValueError, OSError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        path = export_flashcards_to_tsv(raw_cards, str(safe_path))
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return {"exported_to": str(path), "count": len(raw_cards)}

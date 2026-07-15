@@ -31,29 +31,14 @@ def _card_to_tsv_row(card: dict) -> str:
 	return f"{front}\t{back_text}"
 
 
-def export_flashcards_to_tsv(
-	flashcards: Iterable[dict],
-	output_path: str,
-	*,
-	base_dir: Path | None = None,
-) -> Path:
+def export_flashcards_to_tsv(flashcards: Iterable[dict], output_path: str) -> Path:
 	"""Exporta una coleccion de flashcards al formato TSV (frente\\tretro).
 
-	Si se proporciona *base_dir*, el *output_path* se resuelve relativo a ese
-	directorio y se verifica que el resultado no salga de él (previene
-	path-traversal). Si no se proporciona *base_dir* la ruta se usa tal cual
-	(comportamiento de CLI con rutas de confianza del operador).
+	*output_path* debe ser una ruta de confianza ya validada por el llamador.
+	Nunca pases directamente rutas procedentes de input de usuario sin sanear
+	previamente (ver ``validate_export_path`` para CLI y el uso de UUID en API).
 	"""
-	if base_dir is not None:
-		safe_base = Path(base_dir).resolve()
-		# Usar únicamente el nombre de archivo para evitar traversal
-		resolved = (safe_base / Path(output_path).name).resolve()
-		if not str(resolved).startswith(str(safe_base)):
-			raise ValueError(f"Ruta no permitida fuera del directorio base: {output_path}")
-		output = resolved
-	else:
-		output = Path(output_path)
-
+	output = Path(output_path)
 	output.parent.mkdir(parents=True, exist_ok=True)
 
 	rows = [_card_to_tsv_row(card) for card in flashcards]
@@ -61,25 +46,32 @@ def export_flashcards_to_tsv(
 	return output
 
 
-def export_flashcards_to_json(
-	flashcards: Iterable[dict],
-	output_path: str,
-	*,
-	base_dir: Path | None = None,
-) -> Path:
-	"""Exporta flashcards a JSON para uso posterior o debug."""
-	if base_dir is not None:
-		safe_base = Path(base_dir).resolve()
-		resolved = (safe_base / Path(output_path).name).resolve()
-		if not str(resolved).startswith(str(safe_base)):
-			raise ValueError(f"Ruta no permitida fuera del directorio base: {output_path}")
-		output = resolved
-	else:
-		output = Path(output_path)
+def export_flashcards_to_json(flashcards: Iterable[dict], output_path: str) -> Path:
+	"""Exporta flashcards a JSON para uso posterior o debug.
 
+	Mismas precauciones que ``export_flashcards_to_tsv``.
+	"""
+	output = Path(output_path)
 	output.parent.mkdir(parents=True, exist_ok=True)
 	output.write_text(json.dumps(list(flashcards), indent=2, ensure_ascii=False), encoding="utf-8")
 	return output
+
+
+def validate_export_path(user_path: str, base_dir: Path) -> Path:
+	"""Valida y restringe *user_path* al directorio *base_dir*.
+
+	Devuelve la ruta segura y absoluta dentro de *base_dir*, o lanza
+	``ValueError`` si el nombre contiene traversal o caracteres no permitidos.
+	"""
+	base = base_dir.resolve()
+	# Solo usar el componente de nombre de archivo; descartar cualquier directorio
+	name = Path(user_path).name
+	if not name:
+		raise ValueError("El nombre de archivo no puede estar vacío.")
+	resolved = (base / name).resolve()
+	if not str(resolved).startswith(str(base) + "/") and resolved != base:
+		raise ValueError(f"Ruta no permitida fuera del directorio base: {user_path}")
+	return resolved
 
 
 if __name__ == "__main__":
@@ -90,9 +82,13 @@ if __name__ == "__main__":
 	parser.add_argument("output_tsv", help="Nombre de archivo de salida (se crea en el directorio actual)")
 	args = parser.parse_args()
 
-	# Restringir la escritura al directorio de trabajo actual para evitar
-	# que un valor malicioso en output_tsv pueda sobrescribir archivos arbitrarios.
+	# Validar y restringir la ruta al directorio actual antes de usar
+	try:
+		safe_output = validate_export_path(args.output_tsv, Path.cwd())
+	except ValueError as exc:
+		raise SystemExit(f"Error: {exc}") from exc
+
 	cards = json.loads(Path(args.input_json).read_text(encoding="utf-8"))
-	output_file = export_flashcards_to_tsv(cards, args.output_tsv, base_dir=Path.cwd())
+	output_file = export_flashcards_to_tsv(cards, str(safe_output))
 	print(f"Export completado: {output_file}")
 

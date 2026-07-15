@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from agent.language_tutor import LanguageTutorAgent
+from auth.security import TokenError, decode_access_token
+from db.user_db import UserDB
 from db.vocabulary_db import VocabularyDB
 
 _DATA_DIR = Path(__file__).parent.parent / "data"
@@ -15,6 +21,8 @@ _NGSL_CSV = _DATA_DIR / "NGSL_1.2_lemmatized_for_teaching.csv"
 # Instancias únicas (singleton de proceso)
 _agent: LanguageTutorAgent | None = None
 _vocab_db: VocabularyDB | None = None
+_user_db: UserDB | None = None
+_bearer = HTTPBearer(auto_error=False)
 
 
 def get_agent() -> LanguageTutorAgent:
@@ -36,3 +44,39 @@ def get_vocab_db() -> VocabularyDB:
             ngsl_csv_path=str(_NGSL_CSV) if _NGSL_CSV.exists() else None,
         )
     return _vocab_db
+
+
+def get_user_db() -> UserDB:
+    global _user_db
+    if _user_db is None:
+        _user_db = UserDB(db_path=os.getenv("USER_DB_PATH", ":memory:"))
+    return _user_db
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
+    user_db: UserDB = Depends(get_user_db),
+) -> dict:
+    unauthorized = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing authentication token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise unauthorized
+
+    try:
+        payload = decode_access_token(credentials.credentials)
+    except TokenError as exc:
+        raise unauthorized from exc
+
+    try:
+        user_id = int(payload.get("sub"))
+    except (TypeError, ValueError):
+        raise unauthorized
+
+    user = user_db.get_by_id(user_id)
+    if user is None:
+        raise unauthorized
+
+    return user

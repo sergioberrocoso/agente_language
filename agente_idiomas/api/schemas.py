@@ -113,3 +113,26 @@ class ChatResponse(BaseModel):
     corrections: list[Correction]
     exercise: Optional[FillBlankExercise] = None
     turn: int
+
+
+# ---------------------------------------------------------------------------
+# Auth
+# ---------------------------------------------------------------------------
+class AuthRegisterRequest(BaseModel):
+    email: str = Field(..., min_length=3)
+    password: str = Field(..., min_length=1)
+
+
+class AuthLoginRequest(BaseModel):
+    email: str = Field(..., min_length=3)
+    password: str = Field(..., min_length=1)
+
+
+class PublicUser(BaseModel):
+    id: int
+    email: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str

@@ -7,6 +7,8 @@ from fastapi import APIRouter, HTTPException
 from api.schemas import (
     ChatRequest,
     ChatResponse,
+    CorrectTextRequest,
+    CorrectTextResponse,
     Correction,
     FillBlankExercise,
 )
@@ -42,19 +44,15 @@ def chat(body: ChatRequest):
     )
 
 
-@router.post("/correct")
-def correct_text(body: dict):
+@router.post("/correct", response_model=CorrectTextResponse)
+def correct_text(body: CorrectTextRequest):
     """Analiza un texto y devuelve sugerencias de corrección gramatical."""
-    text = body.get("text", "")
-    if not text:
-        raise HTTPException(status_code=422, detail="El campo 'text' es obligatorio.")
-
     agent = get_agent()
-    corrections = agent.correct_text(text)
-    corrected = agent.apply_corrections(text)
+    corrections = agent.correct_text(body.text)
+    corrected = agent.apply_corrections(body.text)
 
-    return {
-        "original":    text,
-        "corrected":   corrected,
-        "corrections": corrections,
-    }
+    return CorrectTextResponse(
+        original=body.text,
+        corrected=corrected,
+        corrections=[Correction(**c) for c in corrections],
+    )

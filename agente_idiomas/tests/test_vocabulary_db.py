@@ -114,12 +114,6 @@ class VocabularyDBNGSLTests(unittest.TestCase):
         self.assertGreater(len(results), 0)
 
     def test_ngsl_common_word_has_rank(self):
-        entry = self.db.get_by_headword("the")
-        if entry is None:
-            entry = self.db.search("the", limit=1)
-            if entry:
-                entry = entry[0]
-        # Puede no estar en NGSL por ser funcional; simplemente verificar que la búsqueda funciona
         results = self.db.search("go", limit=5)
         self.assertIsInstance(results, list)
 

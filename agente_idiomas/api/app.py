@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from api.routes.missions import router as missions_router
@@ -10,6 +12,15 @@ from api.routes.chat import router as chat_router
 from api.routes.flashcards import router as flashcards_router
 from api.deps import get_agent, get_vocab_db
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Precarga el agente y la BD de vocabulario al arrancar."""
+    get_agent()
+    get_vocab_db()
+    yield
+
+
 app = FastAPI(
     title="Agente Tutor de Idiomas",
     description=(
@@ -17,6 +28,7 @@ app = FastAPI(
         "corrección gramatical, ejercicios de relleno y flashcards."
     ),
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 # Registrar rutas
@@ -24,13 +36,6 @@ app.include_router(missions_router)
 app.include_router(vocabulary_router)
 app.include_router(chat_router)
 app.include_router(flashcards_router)
-
-
-@app.on_event("startup")
-def _startup() -> None:
-    """Precarga el agente y la BD de vocabulario al arrancar."""
-    get_agent()
-    get_vocab_db()
 
 
 @app.get("/health", tags=["status"])

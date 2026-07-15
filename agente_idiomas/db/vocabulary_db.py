@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -38,7 +39,7 @@ _CATEGORY_MAP: dict[str, list[str]] = {
         "window", "garden", "floor", "wall", "roof", "furniture", "chair",
         "table", "sofa", "lamp", "curtain", "shelf", "cupboard", "closet",
         "apartment", "flat", "neighbor", "rent", "landlord", "move",
-        "bathroom", "toilet", "shower", "garage", "yard",
+        "toilet", "shower", "garage", "yard",
     ],
     "actions": [
         "run", "walk", "eat", "sleep", "work", "play", "read", "write",
@@ -154,6 +155,7 @@ class VocabularyDB:
         self._db_path = db_path
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
+        self._lock = threading.Lock()
         self._create_schema()
         if ngsl_csv_path:
             self.load_from_ngsl(ngsl_csv_path)
@@ -162,20 +164,21 @@ class VocabularyDB:
     # Schema
     # ------------------------------------------------------------------
     def _create_schema(self) -> None:
-        self._conn.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS vocabulary (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                headword       TEXT    NOT NULL UNIQUE,
-                forms          TEXT    NOT NULL DEFAULT '[]',
-                tags           TEXT    NOT NULL DEFAULT '[]',
-                frequency_rank INTEGER
-            );
-            CREATE INDEX IF NOT EXISTS idx_vocabulary_headword
-                ON vocabulary(headword);
-            """
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS vocabulary (
+                    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                    headword       TEXT    NOT NULL UNIQUE,
+                    forms          TEXT    NOT NULL DEFAULT '[]',
+                    tags           TEXT    NOT NULL DEFAULT '[]',
+                    frequency_rank INTEGER
+                );
+                CREATE INDEX IF NOT EXISTS idx_vocabulary_headword
+                    ON vocabulary(headword);
+                """
+            )
+            self._conn.commit()
 
     # ------------------------------------------------------------------
     # Loading
@@ -208,12 +211,13 @@ class VocabularyDB:
                             json.dumps(tags, ensure_ascii=False), rank))
             rank += 1
 
-        self._conn.executemany(
-            "INSERT OR IGNORE INTO vocabulary (headword, forms, tags, frequency_rank) "
-            "VALUES (?, ?, ?, ?)",
-            entries,
-        )
-        self._conn.commit()
+        with self._lock:
+            self._conn.executemany(
+                "INSERT OR IGNORE INTO vocabulary (headword, forms, tags, frequency_rank) "
+                "VALUES (?, ?, ?, ?)",
+                entries,
+            )
+            self._conn.commit()
         return len(entries)
 
     # ------------------------------------------------------------------
@@ -222,21 +226,23 @@ class VocabularyDB:
     def search(self, query: str, limit: int = 20) -> list[dict]:
         """Busca palabras cuyo headword o formas contengan *query*."""
         q = f"%{query.lower()}%"
-        rows = self._conn.execute(
-            "SELECT * FROM vocabulary "
-            "WHERE lower(headword) LIKE ? OR lower(forms) LIKE ? "
-            "ORDER BY frequency_rank "
-            "LIMIT ?",
-            (q, q, limit),
-        ).fetchall()
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM vocabulary "
+                "WHERE lower(headword) LIKE ? OR lower(forms) LIKE ? "
+                "ORDER BY frequency_rank "
+                "LIMIT ?",
+                (q, q, limit),
+            ).fetchall()
         return [self._row_to_dict(r) for r in rows]
 
     def get_by_headword(self, headword: str) -> Optional[dict]:
         """Devuelve la entrada exacta para un headword, o None."""
-        row = self._conn.execute(
-            "SELECT * FROM vocabulary WHERE lower(headword) = lower(?)",
-            (headword,),
-        ).fetchone()
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT * FROM vocabulary WHERE lower(headword) = lower(?)",
+                (headword,),
+            ).fetchone()
         return self._row_to_dict(row) if row else None
 
     def get_by_tags(self, tags: list[str], limit: int = 50) -> list[dict]:
@@ -246,13 +252,14 @@ class VocabularyDB:
         results: list[dict] = []
         seen: set[int] = set()
         for tag in tags:
-            rows = self._conn.execute(
-                "SELECT * FROM vocabulary "
-                "WHERE tags LIKE ? "
-                "ORDER BY frequency_rank "
-                "LIMIT ?",
-                (f'%"{tag}"%', limit),
-            ).fetchall()
+            with self._lock:
+                rows = self._conn.execute(
+                    "SELECT * FROM vocabulary "
+                    "WHERE tags LIKE ? "
+                    "ORDER BY frequency_rank "
+                    "LIMIT ?",
+                    (f'%"{tag}"%', limit),
+                ).fetchall()
             for r in rows:
                 d = self._row_to_dict(r)
                 if d["id"] not in seen:
@@ -262,16 +269,18 @@ class VocabularyDB:
 
     def get_by_rank_range(self, min_rank: int = 1, max_rank: int = 500) -> list[dict]:
         """Devuelve palabras en un rango de frecuencia."""
-        rows = self._conn.execute(
-            "SELECT * FROM vocabulary "
-            "WHERE frequency_rank BETWEEN ? AND ? "
-            "ORDER BY frequency_rank",
-            (min_rank, max_rank),
-        ).fetchall()
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT * FROM vocabulary "
+                "WHERE frequency_rank BETWEEN ? AND ? "
+                "ORDER BY frequency_rank",
+                (min_rank, max_rank),
+            ).fetchall()
         return [self._row_to_dict(r) for r in rows]
 
     def count(self) -> int:
-        return self._conn.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
+        with self._lock:
+            return self._conn.execute("SELECT COUNT(*) FROM vocabulary").fetchone()[0]
 
     # ------------------------------------------------------------------
     # Helpers

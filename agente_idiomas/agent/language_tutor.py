@@ -35,7 +35,7 @@ _CONTRACTION_RULES: list[tuple[str, str, str]] = [
     (r"\bim\b",        "I'm",     "Missing apostrophe in contraction"),
     (r"\bive\b",       "I've",    "Missing apostrophe in contraction"),
     (r"\bill\b",       "I'll",    "Missing apostrophe in contraction"),
-    (r"\bid\b(?!\s*\w)", "I'd",   "Missing apostrophe in contraction"),
+    # Note: "I'd" is excluded — "id" collides too often with other words
 ]
 
 # Concordancia sujeto-verbo (3.ª persona singular, presente simple)
@@ -92,7 +92,7 @@ def _make_3sg(verb: str) -> str:
         return _IRREGULAR_3SG[verb]
     if verb.endswith(("s", "sh", "ch", "x", "z", "o")):
         return verb + "es"
-    if verb.endswith("y") and not verb[-2] in "aeiou":
+    if len(verb) >= 2 and verb.endswith("y") and verb[-2] not in "aeiou":
         return verb[:-1] + "ies"
     return verb + "s"
 

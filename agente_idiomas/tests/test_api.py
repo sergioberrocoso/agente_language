@@ -1,6 +1,7 @@
 """Tests de los endpoints de la API FastAPI."""
 
 import json
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -14,6 +15,7 @@ from fastapi.testclient import TestClient
 
 from api.app import app
 import api.deps as deps
+from auth.security import create_access_token
 
 
 def _make_test_agent():
@@ -200,6 +202,113 @@ class APIFlashcardsTests(unittest.TestCase):
         self.assertIn("exported_to", data)
         # Verify the server used its own path (not the client-provided name)
         self.assertNotIn("ignored_by_server", data["exported_to"])
+
+
+class APIAuthTests(unittest.TestCase):
+    def setUp(self):
+        deps._agent = _make_test_agent()
+        deps._user_db = None
+        os.environ["USER_DB_PATH"] = ":memory:"
+        os.environ["JWT_SECRET"] = "test-jwt-secret"
+        os.environ["JWT_EXPIRE_MINUTES"] = "60"
+        self.client = TestClient(app)
+
+    def tearDown(self):
+        deps._agent = None
+        deps._vocab_db = None
+        deps._user_db = None
+        os.environ.pop("USER_DB_PATH", None)
+        os.environ.pop("JWT_SECRET", None)
+        os.environ.pop("JWT_EXPIRE_MINUTES", None)
+
+    def test_register_success(self):
+        r = self.client.post(
+            "/auth/register",
+            json={"email": "alice@example.com", "password": "super-secret"},
+        )
+        self.assertEqual(201, r.status_code)
+        data = r.json()
+        self.assertEqual("alice@example.com", data["email"])
+        self.assertIn("id", data)
+
+        user = deps.get_user_db().get_by_email("alice@example.com")
+        self.assertIsNotNone(user)
+        self.assertNotEqual("super-secret", user["password_hash"])
+
+    def test_register_duplicate_returns_409(self):
+        self.client.post(
+            "/auth/register",
+            json={"email": "Alice@Example.com", "password": "secret-12345"},
+        )
+        created = deps.get_user_db().get_by_email("alice@example.com")
+        self.assertIsNotNone(created)
+        self.assertEqual("alice@example.com", created["email"])
+        r = self.client.post(
+            "/auth/register",
+            json={"email": "alice@example.com", "password": "secret-67890"},
+        )
+        self.assertEqual(409, r.status_code)
+
+    def test_login_success(self):
+        self.client.post(
+            "/auth/register",
+            json={"email": "bob@example.com", "password": "correct-password"},
+        )
+        r = self.client.post(
+            "/auth/login",
+            json={"email": "bob@example.com", "password": "correct-password"},
+        )
+        self.assertEqual(200, r.status_code)
+        data = r.json()
+        self.assertIn("access_token", data)
+        self.assertEqual("bearer", data["token_type"])
+
+    def test_login_wrong_password_returns_401(self):
+        self.client.post(
+            "/auth/register",
+            json={"email": "carol@example.com", "password": "correct-password"},
+        )
+        r = self.client.post(
+            "/auth/login",
+            json={"email": "carol@example.com", "password": "wrong-password"},
+        )
+        self.assertEqual(401, r.status_code)
+
+    def test_me_without_token_returns_401(self):
+        r = self.client.get("/auth/me")
+        self.assertEqual(401, r.status_code)
+
+    def test_me_with_valid_token_returns_user(self):
+        self.client.post(
+            "/auth/register",
+            json={"email": "dave@example.com", "password": "strong-password"},
+        )
+        login = self.client.post(
+            "/auth/login",
+            json={"email": "dave@example.com", "password": "strong-password"},
+        )
+        token = login.json()["access_token"]
+        r = self.client.get("/auth/me", headers={"Authorization": "Bearer " + token})
+        self.assertEqual(200, r.status_code)
+        self.assertEqual("dave@example.com", r.json()["email"])
+
+    def test_me_with_invalid_token_returns_401(self):
+        invalid_header = {"Authorization": "Bearer " + "not-a-valid-token"}
+        r = self.client.get("/auth/me", headers=invalid_header)
+        self.assertEqual(401, r.status_code)
+
+    def test_me_with_expired_token_returns_401(self):
+        self.client.post(
+            "/auth/register",
+            json={"email": "eva@example.com", "password": "strong-password"},
+        )
+        user = deps.get_user_db().get_by_email("eva@example.com")
+        expired_token = create_access_token(str(user["id"]), expires_minutes=-1)
+        r = self.client.get(
+            "/auth/me",
+            headers={"Authorization": "Bearer " + expired_token},
+        )
+        self.assertEqual(401, r.status_code)
 
 
 if __name__ == "__main__":

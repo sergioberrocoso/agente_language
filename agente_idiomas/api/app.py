@@ -10,6 +10,7 @@ from api.routes.missions import router as missions_router
 from api.routes.vocabulary import router as vocabulary_router
 from api.routes.chat import router as chat_router
 from api.routes.flashcards import router as flashcards_router
+from api.routes.auth import router as auth_router
 from api.deps import get_agent, get_vocab_db
 
 
@@ -36,6 +37,7 @@ app.include_router(missions_router)
 app.include_router(vocabulary_router)
 app.include_router(chat_router)
 app.include_router(flashcards_router)
+app.include_router(auth_router)
 
 
 @app.get("/health", tags=["status"])
